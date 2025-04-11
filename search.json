@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "Junichiro Iwasawa",
-    "section": "",
-    "text": "Personal webpage: jiwasawa.github.io/"
-  },
-  {
     "objectID": "posts/transformer-attention/index.html",
     "href": "posts/transformer-attention/index.html",
     "title": "Understanding Self-Attention",
@@ -88,6 +81,13 @@
     "href": "index.html",
     "title": "Blog",
     "section": "",
-    "text": "Understanding Self-Attention\n\n\n\nMachine Learning\n\nTransformer\n\nPython\n\n\n\n\n\n\n\n\n\nApr 11, 2025\n\n\nJunichiro Iwasawa\n\n\n\n\n\nNo matching items"
+    "text": "Understanding Self-Attention\n\n\n\n\n\n\nMachine Learning\n\n\nTransformer\n\n\nPython\n\n\n\n\n\n\n\n\n\nApr 11, 2025\n\n\nJunichiro Iwasawa\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Junichiro Iwasawa",
+    "section": "",
+    "text": "Personal webpage: jiwasawa.github.io/"
   }
 ]
