@@ -1,0 +1,552 @@
+---
+title: "Understanding Self-Attention"
+author: "Junichiro Iwasawa"
+date: "2025-04-11"
+categories: [Machine Learning, Transformer, Python]
+image: https://picsum.photos/id/83/100
+---
+
+Lately, Large Language Models (LLMs) like ChatGPT and GPT-4 have taken the world by storm. These models demonstrate remarkable abilities, from generating code and drafting emails to answering complex questions and even writing creative prose. At the heart of many of these systems lies the Transformer architecture, introduced in the groundbreaking 2017 paper, "[Attention is All You Need](https://arxiv.org/abs/1706.03762)".
+
+But what exactly is this "Attention" mechanism, and how does it empower models like GPT to understand context and generate coherent text?
+
+Andrej Karpathy's excellent video, "[Let's build GPT: from scratch, in code, spelled out.](https://www.youtube.com/watch?v=kCc8FmEb1nY)", demystifies the Transformer by building a small version from the ground up, which he calls [`nanogpt`](https://www.google.com/search?q=%5Bhttps://github.com/karpathy/ng-video-lecture/tree/master%5D\(https://github.com/karpathy/ng-video-lecture/tree/master\)). Let's follow his lead and unravel the workings of self-attention, the core engine of the Transformer.
+
+## Getting Started: The Basics of Language Modeling
+
+Before diving into attention, let's grasp the fundamental task: language modeling. The goal of language modeling is to predict the next word (or character, or token) in a sequence, given the preceding sequence (the context).
+
+Karpathy starts with the "Tiny Shakespeare" dataset – a single text file containing concatenated works of Shakespeare.
+
+```python
+# First, let's prepare our training dataset. We'll download the Tiny Shakespeare dataset.
+!wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+
+# Let's read it to see what's inside.
+with open('input.txt', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+# Let's list all the unique characters that occur in this text.
+chars = sorted(list(set(text)))
+vocab_size = len(chars)
+print(''.join(chars))
+# !$&',-.3:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+print(vocab_size)
+# 65
+
+# Create a mapping from characters to integers.
+stoi = { ch:i for i,ch in enumerate(chars) }
+itos = { i:ch for i,ch in enumerate(chars) }
+encode = lambda s: [stoi[c] for c in s] # encoder: take a string, output a list of integers
+decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of integers, output a string
+print(encode("hii there"))
+# [46, 47, 47, 1, 58, 46, 43, 56, 43]
+print(decode(encode("hii there")))
+# hii there
+```
+
+```python
+# Now let's encode the entire text dataset and store it into a torch.Tensor.
+import torch # We use PyTorch: https://pytorch.org
+data = torch.tensor(encode(text), dtype=torch.long)
+print(data.shape, data.dtype)
+# torch.Size([1115394]) torch.int64
+print(data[:1000]) # The first 1,000 characters we looked at earlier will look like this to the GPT
+# tensor([18, 47, 56, 57, 58,  1, 15, 47, 58, 47, 64, 43, 52, 10,  0, 14, 43, 44, ...
+```
+
+In this example, the text is tokenized at the character level, mapping each character to a number. The model's job is to predict the next number in the sequence, given a sequence of numbers.
+
+Karpathy first implements the simplest possible language model: the **Bigram Model**.
+
+```python
+import torch
+import torch.nn as nn
+from torch.nn import functional as F
+torch.manual_seed(1337)
+
+class BigramLanguageModel(nn.Module):
+
+    def __init__(self, vocab_size):
+        super().__init__()
+        # each token directly reads off the logits for the next token from a lookup table
+        # Later in the video, this changes to vocab_size x n_embd
+        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
+
+    def forward(self, idx, targets=None):
+        # idx and targets are both (B,T) tensor of integers
+        # In the Bigram model, logits are looked up directly
+        logits = self.token_embedding_table(idx) # (B,T,C) where initially C=vocab_size
+
+        if targets is None:
+            loss = None
+        else:
+            # reshape for cross_entropy
+            B, T, C = logits.shape
+            logits = logits.view(B*T, C)
+            targets = targets.view(B*T)
+            loss = F.cross_entropy(logits, targets)
+
+        return logits, loss
+
+    def generate(self, idx, max_new_tokens):
+        # idx is (B, T) array of indices in the current context
+        for _ in range(max_new_tokens):
+            # get the predictions
+            logits, loss = self(idx)
+            # focus only on the last time step
+            logits = logits[:, -1, :] # becomes (B, C)
+            # apply softmax to get probabilities
+            probs = F.softmax(logits, dim=-1) # (B, C)
+            # sample from the distribution
+            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
+            # append sampled index to the running sequence
+            idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
+        return idx
+
+m = BigramLanguageModel(vocab_size)
+# Assuming xb, yb are batches from get_batch function (not shown here, but in Karpathy's code)
+# logits, loss = m(xb, yb) 
+# print(logits.shape) # Example shape if B=4, T=8 -> (32, 65) -> after view (B*T, C)
+# print(loss) # Example loss tensor
+
+# Generate text (assuming 'idx' starts as torch.zeros((1, 1), dtype=torch.long))
+# print(decode(m.generate(idx = torch.zeros((1, 1), dtype=torch.long), max_new_tokens=100)[0].tolist()))
+# Example output (untrained): SKIcLT;AcELMoTbvZv C?nq-QE33:CJqkOKH-q;:la!oiywkHjgChzbQ?u!3bLIgwevmyFJGUGpwnYWmnxKWWev-tDqXErVKLgJ
+```
+
+Let's train this simple model.
+
+```python
+# Create a PyTorch optimizer
+optimizer = torch.optim.AdamW(m.parameters(), lr=1e-3)
+
+batch_size = 32 # How many independent sequences will we process in parallel?
+# Assuming get_batch function exists as in Karpathy's code
+# def get_batch(split): ... return xb, yb
+
+for steps in range(10000): # increase number of steps for good results...
+
+    # sample a batch of data
+    xb, yb = get_batch('train')
+
+    # evaluate the loss
+    logits, loss = m(xb, yb)
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    optimizer.step()
+
+# print(loss.item()) # Example loss after some training
+# print(decode(m.generate(idx = torch.zeros((1, 1), dtype=torch.long), max_new_tokens=500)[0].tolist()))
+# Example output (after some training): oTo.JUZ!!zqe!
+# xBP qbs$Gy'AcOmrLwwt ... (still mostly nonsense)
+```
+
+This model uses an embedding table where the index of the input character directly looks up a probability distribution (logits) for the next character. It's simple, but has a critical flaw: it completely ignores context. The prediction after 't' in "hat" is the same as after 't' in "bat". The tokens aren't "talking" to each other.
+
+## The Need for Communication: Aggregating Past Information
+
+To make better predictions, tokens need information from the tokens that came before them in the sequence. How can tokens communicate?
+
+Karpathy introduces a "mathematical trick" using matrix multiplication. The simplest way for a token to get context is to average the information from all preceding tokens, including itself.
+
+Suppose our input `x` has shape `(B, T, C)` (Batch, Time (sequence length), Channels (embedding dimension)). We want to compute `xbow` (a bag-of-words representation) such that `xbow[b, t]` contains the average of `x[b, 0]` through `x[b, t]`.
+
+A simple loop is inefficient:
+
+```python
+# We want xbow[b,t] = mean_{i<=t} x[b,i]
+# (assuming x is defined with shape B, T, C)
+B,T,C = 4,8,32 # example dimensions
+x = torch.randn(B,T,C)
+xbow = torch.zeros((B,T,C))
+for b in range(B):
+    for t in range(T):
+        xprev = x[b,:t+1] # (t+1, C)
+        xbow[b,t] = torch.mean(xprev, 0)
+```
+
+A much more efficient way uses matrix multiplication with a lower-triangular matrix:
+
+```python
+# version 2: using matrix multiply for a weighted aggregation
+T = 8 # Example sequence length
+# toy example illustrating how matrix multiplication can be used for weighted aggregation.
+wei = torch.tril(torch.ones(T, T)) # Lower-triangular matrix of ones
+wei = wei / wei.sum(1, keepdim=True) # Normalize rows to sum to 1 -> averaging
+# Example x with B=4, T=8, C=32
+x = torch.randn(4, T, 32)
+xbow2 = wei @ x # (T, T) @ (B, T, C) ----> (B, T, C) due to broadcasting
+torch.allclose(xbow, xbow2) # True
+```
+
+Here, `wei` (weights) is a `(T, T)` matrix. Row `t` of `wei` has non-zero values (in this case, 1/(t+1)) only in columns 0 through `t`. Multiplying this with `x` (shape `(B, T, C)`), PyTorch broadcasts `wei` across the batch dimension. The resulting `xbow2[b, t]` becomes the weighted sum (average, in this case) of `x[b, 0]` through `x[b, t]`.
+
+This matrix multiplication efficiently performs the aggregation. We can also achieve this using `softmax`:
+
+```python
+# version 3: use Softmax
+T = 8
+tril = torch.tril(torch.ones(T, T))
+wei = torch.zeros((T,T))
+wei = wei.masked_fill(tril == 0, float('-inf')) # Fill upper triangle with -inf
+wei = F.softmax(wei, dim=-1) # Softmax makes rows sum to 1, recovering averaging weights
+xbow3 = wei @ x
+# torch.allclose(xbow, xbow3) should be True
+```
+
+Why use `softmax` here? It introduces the crucial idea that the weights (`wei`) don't have to be a fixed average; they can be *learned* or *data-dependent*. This is exactly what self-attention does.
+
+## Introducing Positional Information: Position Encoding
+
+Before diving into the self-attention mechanism itself, there's another crucial element: information about the token's position in the sequence.
+
+The basic self-attention calculation (weighted aggregation using Query, Key, and Value) doesn't inherently consider where tokens are located. If you shuffled the words in a sentence, the attention scores between any two given words (based on their vectors alone) wouldn't change. This is problematic, as word order is fundamental to meaning. "The cat sat on the mat" means something very different from "The mat sat on the cat."
+
+To solve this, Transformers add a **Position Encoding** vector to the token's own embedding vector (Token Embedding). This combined vector represents both the token's meaning and its position.
+
+In Karpathy's `nanogpt`, learnable position encodings are used. Specifically, an embedding table (`position_embedding_table`) stores position vectors for up to the maximum sequence length (`block_size`). For a sequence of length `T`, integers from `0` to `T-1` are used as indices to retrieve the corresponding position vectors from this table.
+
+```python
+# Excerpt from the forward method in BigramLanguageModel (or later GPTLanguageModel)
+# Assuming idx is the input tensor of token indices (B, T)
+# Assuming self.token_embedding_table and self.position_embedding_table are defined
+# Assuming n_embd is the embedding dimension C
+# Assuming block_size is the maximum context length
+# Assuming device is set ('cuda' or 'cpu')
+
+B, T = idx.shape
+
+# idx and targets are both (B,T) tensor of integers
+tok_emb = self.token_embedding_table(idx) # (B,T,C) - Token embeddings
+# torch.arange(T, device=device) generates integer sequence 0, 1, ..., T-1
+pos_emb = self.position_embedding_table(torch.arange(T, device=device)) # (T,C) - Position embeddings
+x = tok_emb + pos_emb # (B,T,C) - Add token and position embeddings
+# x = self.blocks(x) # ... this x becomes the input to the Transformer blocks ...
+```
+
+This creates the vector `x`, containing both the token's identity (`tok_emb`) and its position (`pos_emb`). This `x` is the actual input passed into the subsequent Transformer blocks (Self-Attention and FeedForward layers), allowing the model to consider both meaning and order.
+
+## Self-Attention: Data-Dependent Information Aggregation
+
+Simple averaging treats all past tokens equally. But often, some past tokens are much more relevant than others. When predicting the word after "The cat sat on the...", the word "cat" is likely more important than "The".
+
+Self-attention allows tokens to **query** other tokens and assign **attention scores** based on relevance. Each token produces three vectors:
+
+1.  **Query (Q)**: What am I looking for?
+2.  **Key (K)**: What information do I possess?
+3.  **Value (V)**: If attention is paid to me, what information will I provide?
+
+The attention score (or affinity) between token `i` and token `j` is calculated by taking the dot product of token `i`'s Query vector (`q_i`) and token `j`'s Key vector (`k_j`):
+
+`affinity(i, j) = q_i ⋅ k_j`
+
+A high dot product means the Query matches the Key well, indicating token `j` is relevant to token `i`.
+
+Here's how a single "Head" of attention is implemented:
+
+```python
+# version 4: self-attention!
+torch.manual_seed(1337)
+B,T,C = 4,8,32 # batch, time, channels (embedding dimension)
+x = torch.randn(B,T,C) # Input token embeddings + position encodings
+
+# Let's see a single Head perform self-attention
+head_size = 16 # Dimension of K, Q, V vectors for this head
+# Linear layers to project input 'x' into K, Q, V
+key   = nn.Linear(C, head_size, bias=False)
+query = nn.Linear(C, head_size, bias=False)
+value = nn.Linear(C, head_size, bias=False)
+
+k = key(x)   # (B, T, head_size)
+q = query(x) # (B, T, head_size)
+
+# compute attention scores ("affinities")
+# (B, T, head_size) @ (B, head_size, T) ---> (B, T, T)
+wei =  q @ k.transpose(-2, -1) # wei means "weights" or scores
+
+# --- Scaling Step (discussed below) ---
+# Scale the affinities
+wei = wei * (head_size**-0.5) 
+
+# --- Masking for Decoder ---
+# Assume T is the sequence length (e.g., 8 here)
+# Assume x.device holds the correct device ('cuda' or 'cpu')
+tril = torch.tril(torch.ones(T, T, device=x.device)) 
+# Mask out future tokens
+wei = wei.masked_fill(tril == 0, float('-inf')) 
+
+# --- Normalize Scores to Probabilities ---
+wei = F.softmax(wei, dim=-1) # (B, T, T)
+
+# --- Perform the weighted aggregation of Values ---
+v = value(x) # (B, T, head_size)
+# (B, T, T) @ (B, T, head_size) ---> (B, T, head_size)
+out = wei @ v
+
+# out.shape is (B, T, head_size)
+```
+
+Let's break down the key steps:
+
+1.  **Projection**: The input `x` (containing token + position info) is projected into K, Q, and V spaces using linear layers.
+2.  **Affinity Calculation**: `q @ k.transpose(...)` computes the dot product between every pair of Query and Key vectors within each sequence in the batch. This yields `wei`, the raw attention scores (shape `B, T, T`).
+3.  **Scaling**: The scores `wei` are scaled down by the square root of `head_size`. This is crucial for stabilizing training, especially during initialization. Without scaling, the variance of the dot products grows with `head_size`, potentially pushing the inputs to `softmax` into regions with tiny gradients, hindering learning. This is the "Scaled" part of "Scaled Dot-Product Attention".
+4.  **Masking (Decoder-Specific)**: In autoregressive language modeling like GPT, a token at position `t` should only attend to tokens up to position `t`. This is achieved by setting the attention scores corresponding to future positions (`j > t`) to negative infinity using `masked_fill` with a lower-triangular matrix (`tril`). Softmax then assigns zero probability to these future tokens. (Note: Encoder blocks, like in BERT, do *not* use this causal mask).
+5.  **Softmax**: Softmax is applied row-wise to the masked scores. This converts the scores into probabilities that sum to 1 for each token `t`, representing the attention distribution over preceding tokens `0` to `t`.
+6.  **Value Aggregation**: The final output `out` for each token `t` is a weighted sum of the Value vectors (`v`) of all tokens, weighted by the attention probabilities in `wei`. `out = wei @ v`.
+
+The output `out` (shape `B, T, head_size`) contains, for each token, aggregated information from other relevant tokens in the sequence, based on the learned K, Q, V projections.
+
+## Multi-Head Attention: Multiple Perspectives
+
+A single attention head might learn to focus on a specific type of relationship (e.g., noun-verb agreement). To capture diverse relationships, Transformers use **Multi-Head Attention**.
+
+```python
+# Assuming n_embd, block_size, dropout are defined hyperparameters
+# n_embd = 384 # Example embedding dimension
+# block_size = 256 # Example max context length
+# dropout = 0.2 # Example dropout rate
+
+class Head(nn.Module):
+    """ one head of self-attention """
+
+    def __init__(self, head_size):
+        super().__init__()
+        self.key = nn.Linear(n_embd, head_size, bias=False)
+        self.query = nn.Linear(n_embd, head_size, bias=False)
+        self.value = nn.Linear(n_embd, head_size, bias=False)
+        # tril is registered as a buffer (not a parameter)
+        self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
+
+        self.dropout = nn.Dropout(dropout) # Add dropout
+
+    def forward(self, x):
+        B,T,C = x.shape
+        k = self.key(x)   # (B,T,head_size)
+        q = self.query(x) # (B,T,head_size)
+        # compute attention scores ("affinities")
+        wei = q @ k.transpose(-2,-1) * k.shape[-1]**-0.5 # scale by head_size**-0.5
+        # Apply mask dynamically based on T
+        wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf')) # Use only up to T x T part of tril
+        wei = F.softmax(wei, dim=-1)
+        wei = self.dropout(wei) # Apply dropout to attention weights
+        # perform the weighted aggregation of the values
+        v = self.value(x) # (B,T,head_size)
+        out = wei @ v # (B,T,head_size)
+        return out
+
+class MultiHeadAttention(nn.Module):
+    """ multiple heads of self-attention in parallel """
+
+    def __init__(self, num_heads, head_size):
+        super().__init__()
+        # Create multiple Head instances
+        self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
+        # Projection layer after concatenation
+        self.proj = nn.Linear(num_heads * head_size, n_embd) # n_embd = num_heads * head_size assumed
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        # Run each head in parallel and concatenate results along the channel dimension
+        out = torch.cat([h(x) for h in self.heads], dim=-1) # (B, T, num_heads * head_size)
+        # Re-project the concatenated output back to the original n_embd dimension
+        out = self.dropout(self.proj(out)) # (B, T, n_embd)
+        return out
+```
+
+This simply runs multiple `Head` modules in parallel, potentially each with different learned K, Q, V projections. The outputs of each head (each `B, T, head_size`) are concatenated (`B, T, num_heads * head_size`) and then projected back to the original embedding dimension (`B, T, n_embd`) using another linear layer (`self.proj`). This allows the model to simultaneously attend to information from different representation subspaces.
+
+## Attention Flavors: Self, Cross, Encoders & Decoders
+
+The basic mechanism we've discussed so far is often called **Self-Attention** because the Query (Q), Key (K), and Value (V) vectors are all derived from the *same* input sequence (`x`), allowing tokens within that sequence to attend to each other. However, there are important variations in how self-attention is used and in the broader attention mechanism.
+
+Firstly, how self-attention is used differs between Encoder and Decoder blocks, primarily due to **masking**.
+
+Self-attention in a **Decoder** block employs **causal masking** (the triangular mask) to prevent tokens from attending to future positions. This is essential for autoregressive models like GPT or the decoder part of a machine translation model, where generation must rely only on past information. Karpathy's `nanogpt` is precisely a model composed only of these Decoder blocks.
+
+Conversely, self-attention in an **Encoder** block does *not* use causal masking. All tokens in the sequence can freely attend to all other tokens (past and future). This is used in models like BERT, which aim to understand the full context of an input text, or in the encoder part of a machine translation model (which encodes the entire source sentence). It's suited for capturing bidirectional context.
+
+Secondly, another crucial form of attention is **Cross-Attention**. Unlike self-attention (masked or unmasked), the sources for Query, Key, and Value differ. In cross-attention, the Query (Q) typically comes from one source (e.g., the decoder's state), while the Key (K) and Value (V) come from another source (e.g., the final output of the encoder).
+
+Cross-attention primarily serves to connect the Encoder and Decoder in an Encoder-Decoder architecture. It allows the decoder, as it generates output tokens, to continually refer back to the entire encoded input information via the K and V vectors from the encoder. This enables tasks like machine translation, where the model needs to consider the meaning of the source sentence while generating the target language.
+
+Since `nanogpt` is a decoder-only model, it doesn't have an encoder to process an external input sequence. Therefore, it doesn't need Encoder blocks or Cross-Attention; it consists solely of Self-Attention with causal masking (Decoder blocks).
+
+## The Transformer Block: Communication and Computation
+
+Attention provides the communication mechanism. But the model also needs computation to process the aggregated information. A standard Transformer block combines Multi-Head Self-Attention with a simple, position-wise FeedForward network.
+
+Crucially, **Residual Connections** and **Layer Normalization** are added around each sub-layer (Attention and FeedForward).
+
+  * **Residual Connections**: `x = x + sublayer(norm(x))`. The input `x` to the sub-layer is added to the output of the sub-layer. This significantly helps gradients flow during backpropagation in deep networks, stabilizing training and improving performance.
+  * **Layer Normalization**: Normalizes the features independently for each token across the channel dimension. Unlike Batch Normalization, it doesn't rely on batch statistics, making it well-suited for sequence data. It also stabilizes training. Karpathy implements the common "pre-norm" formulation, where LayerNorm is applied *before* the sub-layer.
+
+<!-- end list -->
+
+```python
+class FeedFoward(nn.Module):
+    """ a simple linear layer followed by a non-linearity """
+
+    def __init__(self, n_embd):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd), # Inner layer is typically 4x larger
+            nn.ReLU(),                     # ReLU activation
+            nn.Linear(4 * n_embd, n_embd), # Project back to n_embd
+            nn.Dropout(dropout),            # Dropout for regularization
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+class Block(nn.Module):
+    """ Transformer block: communication followed by computation """
+
+    def __init__(self, n_embd, n_head):
+        # n_embd: embedding dimension, n_head: the number of heads we'd like
+        super().__init__()
+        head_size = n_embd // n_head
+        self.sa = MultiHeadAttention(n_head, head_size) # Communication
+        self.ffwd = FeedFoward(n_embd)                  # Computation
+        self.ln1 = nn.LayerNorm(n_embd)                 # LayerNorm before Attention
+        self.ln2 = nn.LayerNorm(n_embd)                 # LayerNorm before FeedForward
+
+    def forward(self, x):
+        # Pre-norm formulation with residual connections
+        # Apply LayerNorm -> Self-Attention -> Add residual
+        x = x + self.sa(self.ln1(x))
+        # Apply LayerNorm -> FeedForward -> Add residual
+        x = x + self.ffwd(self.ln2(x))
+        return x
+```
+
+A full GPT model simply stacks multiple of these `Block` layers sequentially. After passing through all blocks, a final LayerNorm is applied, followed by a linear layer that projects the final token representations to the vocabulary size, yielding logits for predicting the next token.
+
+## Putting it all Together: The Final GPT Model
+
+Integrating the components discussed, we arrive at the final GPT-style language model, `GPTLanguageModel`. The code below represents the completed version from Karpathy's video, incorporating the `Block` (which includes `MultiHeadAttention` and `FeedForward`) and other elements.
+
+```python
+# (Reiterating key hyperparameters)
+# hyperparameters
+batch_size = 64 # how many independent sequences will we process in parallel?
+block_size = 256 # what is the maximum context length for predictions?
+max_iters = 5000
+eval_interval = 500
+learning_rate = 3e-4
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+eval_iters = 200
+n_embd = 384 # embedding dimension
+n_head = 6   # number of attention heads
+n_layer = 6  # number of Transformer blocks (layers)
+dropout = 0.2 # dropout rate
+# ------------
+
+class GPTLanguageModel(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        # each token directly reads off the logits for the next token from a lookup table
+        self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
+        self.position_embedding_table = nn.Embedding(block_size, n_embd)
+        # Stack n_layer Transformer blocks
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)])
+        self.ln_f = nn.LayerNorm(n_embd) # final layer norm
+        self.lm_head = nn.Linear(n_embd, vocab_size) # output layer (linear)
+
+        # Better weight initialization (important but not covered in detail in the video walk-through)
+        self.apply(self._init_weights)
+
+    def _init_weights(self, module):
+        # (Weight initialization details omitted for brevity, see Karpathy's code)
+        if isinstance(module, nn.Linear):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            if module.bias is not None:
+                torch.nn.init.zeros_(module.bias)
+        elif isinstance(module, nn.Embedding):
+            torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+
+    def forward(self, idx, targets=None):
+        B, T = idx.shape
+
+        # idx and targets are both (B,T) tensor of integers
+        tok_emb = self.token_embedding_table(idx) # (B,T,C)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=device)) # (T,C)
+        x = tok_emb + pos_emb # (B,T,C)
+        x = self.blocks(x) # (B,T,C) Pass through Transformer blocks
+        x = self.ln_f(x) # (B,T,C) Apply final LayerNorm
+        logits = self.lm_head(x) # (B,T,vocab_size) Compute logits via LM head
+
+        if targets is None:
+            loss = None
+        else:
+            # Reshape for loss calculation
+            B, T, C = logits.shape
+            logits = logits.view(B*T, C)
+            targets = targets.view(B*T)
+            loss = F.cross_entropy(logits, targets)
+
+        return logits, loss
+
+    def generate(self, idx, max_new_tokens):
+        # idx is (B, T) array of indices in the current context
+        for _ in range(max_new_tokens):
+            # crop idx to the last block_size tokens due to position embedding size limit
+            idx_cond = idx[:, -block_size:]
+            # get the predictions
+            logits, loss = self(idx_cond) # perform forward pass
+            # focus only on the last time step
+            logits = logits[:, -1, :] # becomes (B, C)
+            # apply softmax to get probabilities
+            probs = F.softmax(logits, dim=-1) # (B, C)
+            # sample from the distribution
+            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
+            # append sampled index to the running sequence
+            idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
+        return idx
+
+# Example Usage (assuming training loop and data loading are set up)
+# model = GPTLanguageModel()
+# m = model.to(device)
+# ... training loop using optimizer and get_batch ...
+# context = torch.zeros((1, 1), dtype=torch.long, device=device)
+# print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
+```
+
+In this `GPTLanguageModel` class, the `__init__` method defines the token and position embedding tables, stacks `n_layer` `Block`s using `nn.Sequential` (the core Transformer), adds a final `LayerNorm` (`ln_f`), and the output linear layer (`lm_head`). It also includes the `_init_weights` method crucial for stable training.
+
+The `forward` method implements the flow: add token and position embeddings, pass through the blocks, apply final normalization, and project to logits.
+
+The `generate` method produces text autoregressively. The key line `idx_cond = idx[:, -block_size:]` highlights a constraint: because the `position_embedding_table` has a fixed size (`block_size`), the model can only condition on the most recent `block_size` tokens when making a prediction. Within this context window, it performs a forward pass, samples the next token based on the final timestep's logits, and extends the sequence.
+
+The complete code also involves hyperparameters (like `batch_size`, `learning_rate`), an `AdamW` optimizer, and a standard training loop with evaluation (using an `estimate_loss` function), all working together to train and run the GPT model.
+
+## Scaling Up and Results
+
+Karpathy trains this `GPTLanguageModel` (with `n_layer=6, n_head=6, n_embd=384, dropout=0.2`) on Tiny Shakespeare. The resulting model generates much more coherent (though still nonsensical) Shakespeare-like text, demonstrating the power of attention combined with sufficient model capacity.
+
+```console
+# Sample output from the trained GPTLanguageModel
+FlY BOLINGLO:
+Them thrumply towiter arts the
+muscue rike begatt the sea it
+What satell in rowers that some than othis Marrity.
+
+LUCENTVO:
+But userman these that, where can is not diesty rege;
+What and see to not. But's eyes. What?
+```
+
+This architecture—the **decoder-only Transformer** (using causal masking)—is fundamentally the same as that used in models like GPT-2 and GPT-3, just massively scaled up in terms of the number of parameters, layers, embedding sizes, and, crucially, the training data (vast amounts of internet text instead of just Shakespeare).
+
+## Conclusion
+
+The attention mechanism, specifically scaled dot-product self-attention, is the innovation that unlocked the power of Transformers. It allows tokens in a sequence to dynamically query each other, compute relevance scores (affinities) based on learned Query-Key interactions, and aggregate information from relevant tokens' Value vectors in a weighted manner. Combined with Multi-Head Attention, Residual Connections, Layer Normalization, and position-wise FeedForward networks, it forms the Transformer block – the fundamental building block of the models revolutionizing AI today.
+
+By building it up step-by-step, as Karpathy demonstrates, we see that while powerful, the core ideas are graspable and can be implemented with relatively concise code.
+
+-----
+
+*This post is based on Andrej Karpathy's YouTube video "[Let's build GPT: from scratch, in code, spelled out.](https://www.youtube.com/watch?v=kCc8FmEb1nY)". For the complete code and deeper insights, definitely check out the video and his [`nanogpt`](https://www.google.com/search?q=%5Bhttps://github.com/karpathy/ng-video-lecture/tree/master%5D\(https://github.com/karpathy/ng-video-lecture/tree/master\)) repository.*
+*Hopefully, this walkthrough helps clarify the magic behind Transformers and Attention\!*
