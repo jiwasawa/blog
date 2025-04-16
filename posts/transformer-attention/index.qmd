@@ -3,7 +3,7 @@ title: "Understanding Self-Attention"
 author: "Junichiro Iwasawa"
 date: "2025-04-11"
 categories: [Machine Learning, Transformer, Python, LLM]
-image: https://picsum.photos/id/83/100
+image: https://picsum.photos/id/83/200
 ---
 
 Lately, Large Language Models (LLMs) like ChatGPT and GPT-4 have taken the world by storm. These models demonstrate remarkable abilities, from generating code and drafting emails to answering complex questions and even writing creative prose. At the heart of many of these systems lies the Transformer architecture, introduced in the groundbreaking 2017 paper, "[Attention is All You Need](https://arxiv.org/abs/1706.03762)".
