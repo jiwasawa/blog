@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/difusion-basics/index.html",
       "/posts/transformer-attention/index.html"
     ]
   }

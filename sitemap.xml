@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://jiwasawa.github.io/blog/posts/transformer-attention/index.html</loc>
-    <lastmod>2025-04-11T12:03:48.002Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jiwasawa.github.io/blog/index.html</loc>
-    <lastmod>2025-04-11T12:03:48.002Z</lastmod>
+    <loc>https://jiwasawa.github.io/blog/posts/difusion-basics/index.html</loc>
+    <lastmod>2025-04-16T12:10:59.250Z</lastmod>
   </url>
   <url>
     <loc>https://jiwasawa.github.io/blog/about.html</loc>
-    <lastmod>2025-04-11T12:03:48.002Z</lastmod>
+    <lastmod>2025-04-16T12:10:59.249Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jiwasawa.github.io/blog/index.html</loc>
+    <lastmod>2025-04-16T12:10:59.249Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jiwasawa.github.io/blog/posts/transformer-attention/index.html</loc>
+    <lastmod>2025-04-16T12:10:59.250Z</lastmod>
   </url>
 </urlset>
