@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Junichiro Iwasawa">
+<meta name="dcterms.date" content="2025-04-25">
 
-<title>Blog – Home</title>
+<title>The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis – Home</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,25 +25,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-226bd0f977fa82dfae4534cac220d79a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2d3a5f678c659c6d9658e8627949fb9f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-226bd0f977fa82dfae4534cac220d79a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-2d3a5f678c659c6d9658e8627949fb9f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,77 +69,19 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Home</span>
     </a>
   </div>
@@ -150,7 +92,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">Junichiro Iwasawa</span></a>
   </li>  
   <li class="nav-item compact">
@@ -178,142 +120,102 @@ window.Quarto = {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Blog</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">LLM</div>
+                <div class="quarto-category">Podcast</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Junichiro Iwasawa </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 25, 2025</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="RGlmZnVzaW9uJTIwbW9kZWxz">Diffusion models <span class="quarto-category-count">(1)</span></div><div class="category" data-category="TExN">LLM <span class="quarto-category-count">(2)</span></div><div class="category" data-category="TWFjaGluZSUyMExlYXJuaW5n">Machine Learning <span class="quarto-category-count">(2)</span></div><div class="category" data-category="UG9kY2FzdA==">Podcast <span class="quarto-category-count">(1)</span></div><div class="category" data-category="UHl0aG9u">Python <span class="quarto-category-count">(1)</span></div><div class="category" data-category="VHJhbnNmb3JtZXI=">Transformer <span class="quarto-category-count">(1)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
+<p>Large Language Models (LLMs) hold immense promise for extracting insights from the vast oceans of unstructured data we navigate daily. Yet, anyone who has tried to apply them to complex, real-world tasks knows the reality is often messy. Optimizing LLM pipelines for accuracy and efficiency, especially at scale, can quickly become a frustrating exercise in manual tuning.</p>
+<p>Enter <strong>DocETL</strong>, a framework developed by UC Berkeley researcher Shreya Shankar and colleagues (<a href="https://arxiv.org/abs/2410.12189">paper available here</a>), which has been garnering attention. DocETL aims to tame this complexity. Insights from Shankar’s recent <a href="https://twimlai.com/podcast/twimlai/ai-agents-for-data-analysis/">interview on the TWIML Podcast</a> shed light not only on DocETL’s innovative approach but also on a more fundamental truth about how we need to work with LLMs productively.</p>
+<section id="the-harsh-reality-of-llm-data-processing-beyond-slick-demos" class="level3">
+<h3 class="anchored" data-anchor-id="the-harsh-reality-of-llm-data-processing-beyond-slick-demos">The Harsh Reality of LLM Data Processing: Beyond Slick Demos</h3>
+<p>As detailed in the interview and the <a href="https://data-people-group.github.io/blogs/2024/09/24/docetl/">DocETL announcement blog post</a>, simply throwing a complex task at an LLM often yields disappointing results. Consider analyzing decades of presidential debate transcripts for evolving themes. The sheer <strong>scale</strong> can overwhelm context windows. The <strong>complexity</strong> involves more than extraction – it requires identifying themes, tracking changes over time, and synthesizing viewpoints across documents. And the ever-present challenge of <strong>accuracy</strong> means dealing with hallucinations and missed information.</p>
+<p>Shankar’s work on another project analyzing police misconduct records in California highlights the high stakes. Sifting through potentially thousands of pages of unstructured text for patterns requires precision; mistakes are not an option, yet traditional manual annotation is incredibly time-consuming.</p>
+<p>Many developers attempt to solve this by manually chunking data, crafting intricate prompts, and orchestrating multiple LLM calls. But as Shankar points out, this often leads to brittle pipelines that are difficult to modify and may only yield mediocre results after days of painstaking effort.</p>
+</section>
+<section id="docetl-a-declarative-framework-with-llm-agent-powered-optimization" class="level3">
+<h3 class="anchored" data-anchor-id="docetl-a-declarative-framework-with-llm-agent-powered-optimization">DocETL: A Declarative Framework with LLM Agent-Powered Optimization</h3>
+<p>DocETL offers a different path: a declarative framework for building and optimizing LLM-powered data processing pipelines. Users define their desired operations – like <code>Map</code> (apply to each document), <code>Reduce</code> (aggregate results), <code>Split</code> (chunk documents), <code>Gather</code> (add context to chunks), or <code>Resolve</code> (normalize similar entities) – along with prompts describing the task for each step, using YAML or Python.</p>
+<p>The core innovation lies beyond simple execution. DocETL employs <strong>LLM agents</strong> to automatically <strong>rewrite and optimize</strong> the user’s initial pipeline for better accuracy. This involves two key steps:</p>
+<ol type="1">
+<li><strong>Pipeline Rewriting</strong>: Based on predefined rules (covering data decomposition, adding intermediate steps, and LLM-specific improvements), DocETL’s agents propose alternative pipeline structures. For instance, a complex <code>Map</code> operation might be automatically broken down into a sequence: split the document, gather relevant context for each chunk, apply a simpler map to each chunk, and then aggregate the results.</li>
+<li><strong>Quality Assessment &amp; Selection</strong>: The agents generate task-specific validation criteria (e.g., “Were all instances of misconduct extracted?”, “Can each extracted instance be traced back to the source document?”). They then use an “LLM-as-a-judge” approach to evaluate the outputs of different candidate pipelines on sample data, ultimately selecting the plan predicted to yield the highest accuracy.</li>
+</ol>
+<p>This approach frees analysts from wrestling with low-level implementation details like optimal chunk sizes or error recovery logic, allowing them to focus on their analytical goals.</p>
+</section>
+<section id="the-inescapable-need-for-interaction" class="level3">
+<h3 class="anchored" data-anchor-id="the-inescapable-need-for-interaction">The Inescapable Need for “Interaction”</h3>
+<p>Perhaps the most compelling insight from Shankar’s interview transcends DocETL’s technical architecture. She repeatedly emphasizes the crucial role of <strong>interaction</strong> in working effectively with LLMs. The idea of writing a perfect, one-shot prompt is often a myth.</p>
+<blockquote class="blockquote">
+<p><em>“Users have no idea how to write the prompt until they see the initial output,”</em> Shankar explains. <em>“They have to see what the LLM came up with the first time… and then say ‘Oh, like actually…’ They changed the task; they redefine [e.g.] misconduct.”</em></p>
+</blockquote>
+<blockquote class="blockquote">
+<p><em>“The more users iterate [based on seeing intermediate outputs], the more complex the prompts get… That’s very fascinating to me because I think there’s a lot of work in automated prompt engineering… that really puts the human out [of the loop].”</em></p>
+</blockquote>
+<p>It’s through seeing the LLM’s output – its successes, failures, and ambiguities – that users truly understand the nuances of their task and refine their instructions. This <strong>human-driven iterative refinement process</strong>, Shankar suggests, is fundamental to successfully leveraging LLMs for complex problems.</p>
+</section>
+<section id="echoes-of-jeremy-howards-dialog-engineering" class="level3">
+<h3 class="anchored" data-anchor-id="echoes-of-jeremy-howards-dialog-engineering">Echoes of Jeremy Howard’s “Dialog Engineering”</h3>
+<p>Shankar’s findings resonate strongly with the concept of “<strong>Dialog Engineering</strong>,” championed by Jeremy Howard, co-founder of fast.ai and now leading Answer.AI. Howard argues that the common approach of throwing large, monolithic prompts at an AI and hoping for hundreds of lines of perfect code is <a href="https://www.answer.ai/posts/2024-11-07-solveit.html">fundamentally flawed for real-world development</a>.</p>
+<p>Dialog Engineering proposes the opposite: a <strong>tight interactive loop</strong> between human and LLM, where code or other artifacts are <strong>co-constructed in small, manageable increments</strong>. Validation happens at each step.</p>
+<p>Answer.AI’s tool, <strong>solveit</strong> (currently in private beta), aims to embody this philosophy. It provides an interface blending chat and a REPL (Read-Eval-Print Loop), allowing users to give instructions in natural language, receive small code suggestions, and <strong>immediately execute and verify</strong> them within the same environment. The LLM always sees the current context (conversation, files), and users can easily step back or re-run parts of the process if things go awry or requirements change. Simple tests can even be embedded directly in the conversation flow to continuously check for regressions.</p>
+<p>The development style solveit enables—stating a small goal, getting a suggestion, immediately testing it, then accepting or refining—directly mirrors the iterative process Shankar observed as essential in her DocETL research. Both DocETL’s findings and solveit’s approach point to the same conclusion: we need to treat LLMs less like black-box instruction takers and more like <strong>collaborative partners engaged in a dialog</strong>. Shankar’s research provides compelling empirical validation for the principles behind Dialog Engineering, extending their relevance beyond code generation to complex data analysis.</p>
+</section>
+<section id="the-road-ahead-challenges-and-opportunities" class="level3">
+<h3 class="anchored" data-anchor-id="the-road-ahead-challenges-and-opportunities">The Road Ahead: Challenges and Opportunities</h3>
+<p>DocETL is still evolving, and Shankar acknowledges several areas for future work:</p>
+<ul>
+<li><strong>Interfaces</strong>: Moving beyond YAML to more intuitive UIs that facilitate visualization and iteration on large documents and LLM outputs.</li>
+<li><strong>Agent Reliability</strong>: Improving the consistency and fault tolerance of the LLM agents performing the optimization.</li>
+<li><strong>Optimization Speed &amp; Transparency</strong>: Making the optimization process faster and more debuggable for users.</li>
+<li><strong>Benchmarking</strong>: Developing new benchmarks specifically designed to evaluate LLM performance on the complex, long-context data processing tasks DocETL targets.</li>
+</ul>
+</section>
+<section id="conclusion-dialog-is-key-in-the-llm-era" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion-dialog-is-key-in-the-llm-era">Conclusion: Dialog is Key in the LLM Era</h3>
+<p>DocETL represents a significant step forward in harnessing LLMs for complex unstructured data analysis. Its declarative framework and agent-based optimization offer a powerful alternative to manual pipeline construction. However, the research journey itself highlights a critical lesson: the technology alone isn’t enough.</p>
+<p>The true potential of LLMs in these domains will be unlocked not just by better models or automation, but by better <strong>interfaces and workflows that embrace human-LLM interaction</strong>. We need tools that facilitate the back-and-forth, the iterative refinement, the <em>dialog</em> that allows us to clarify our intent and leverage the LLM’s capabilities effectively. The direction indicated by DocETL’s research and tools like Jeremy Howard’s solveit suggests that this interactive paradigm is central to the future of AI-assisted analysis and development.</p>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="TExNJTJDUG9kY2FzdA==" data-listing-date-sort="1745506800000" data-listing-file-modified-sort="1745552760900" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1132">
-<div class="thumbnail"><a href="./posts/docetl/index.html" class="no-external">
-
-<img loading="lazy" src="https://picsum.photos/id/88/200" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/docetl/index.html" class="no-external">The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('UG9kY2FzdA=='); return false;">Podcast</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/docetl/index.html" class="no-external">
-Large Language Models (LLMs) hold immense promise for extracting insights from the vast oceans of unstructured data we navigate daily. Yet, anyone who has tried to apply…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/docetl/index.html" class="no-external">
-<div class="listing-date">
-Apr 25, 2025
-</div>
-<div class="listing-author">
-Junichiro Iwasawa
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="TWFjaGluZSUyMExlYXJuaW5nJTJDRGlmZnVzaW9uJTIwbW9kZWxz" data-listing-date-sort="1744815600000" data-listing-file-modified-sort="1744805417036" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2439">
-<div class="thumbnail"><a href="./posts/difusion-basics/index.html" class="no-external">
-
-<img loading="lazy" src="https://picsum.photos/id/37/200" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/difusion-basics/index.html" class="no-external">Introduction to Diffusion Models: From Core Concepts to Cutting-Edge Applications</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('TWFjaGluZSUyMExlYXJuaW5n'); return false;">Machine Learning</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('RGlmZnVzaW9uJTIwbW9kZWxz'); return false;">Diffusion models</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/difusion-basics/index.html" class="no-external">
-In recent years, diffusion models have taken the generative modeling world by storm, particularly in image synthesis, often producing stunning results. This post aims to…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/difusion-basics/index.html" class="no-external">
-<div class="listing-date">
-Apr 17, 2025
-</div>
-<div class="listing-author">
-Junichiro Iwasawa
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="TWFjaGluZSUyMExlYXJuaW5nJTJDVHJhbnNmb3JtZXIlMkNQeXRob24lMkNMTE0=" data-listing-date-sort="1744297200000" data-listing-file-modified-sort="1744805421909" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5279">
-<div class="thumbnail"><a href="./posts/transformer-attention/index.html" class="no-external">
-
-<img loading="lazy" src="https://picsum.photos/id/83/200" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/transformer-attention/index.html" class="no-external">Understanding Self-Attention</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('TWFjaGluZSUyMExlYXJuaW5n'); return false;">Machine Learning</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('VHJhbnNmb3JtZXI='); return false;">Transformer</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('UHl0aG9u'); return false;">Python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TExN'); return false;">LLM</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/transformer-attention/index.html" class="no-external">
-Lately, Large Language Models (LLMs) like ChatGPT and GPT-4 have taken the world by storm. These models demonstrate remarkable abilities, from generating code and drafting…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/transformer-attention/index.html" class="no-external">
-<div class="listing-date">
-Apr 11, 2025
-</div>
-<div class="listing-author">
-Junichiro Iwasawa
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
