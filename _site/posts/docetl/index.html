@@ -9,7 +9,7 @@
 <meta name="author" content="Junichiro Iwasawa">
 <meta name="dcterms.date" content="2025-04-25">
 
-<title>The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis – Home</title>
+<title>The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -192,7 +192,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="echoes-of-jeremy-howards-dialog-engineering" class="level3">
 <h3 class="anchored" data-anchor-id="echoes-of-jeremy-howards-dialog-engineering">Echoes of Jeremy Howard’s “Dialog Engineering”</h3>
-<p>Shankar’s findings resonate strongly with the concept of “<strong>Dialog Engineering</strong>,” championed by Jeremy Howard, co-founder of fast.ai and now leading Answer.AI. Howard argues that the common approach of throwing large, monolithic prompts at an AI and hoping for hundreds of lines of perfect code is <a href="https://www.answer.ai/posts/2024-11-07-solveit.html">fundamentally flawed for real-world development</a>.</p>
+<p>Shankar’s findings resonate strongly with the concept of “<strong>Dialog Engineering</strong>,” championed by Jeremy Howard, co-founder of fast.ai and now leading Answer.AI. Jeremy argues that the common approach of throwing large, monolithic prompts at an AI and hoping for hundreds of lines of perfect code is <a href="https://www.answer.ai/posts/2024-11-07-solveit.html">fundamentally flawed for real-world development</a>.</p>
 <p>Dialog Engineering proposes the opposite: a <strong>tight interactive loop</strong> between human and LLM, where code or other artifacts are <strong>co-constructed in small, manageable increments</strong>. Validation happens at each step.</p>
 <p>Answer.AI’s tool, <strong>solveit</strong> (currently in private beta), aims to embody this philosophy. It provides an interface blending chat and a REPL (Read-Eval-Print Loop), allowing users to give instructions in natural language, receive small code suggestions, and <strong>immediately execute and verify</strong> them within the same environment. The LLM always sees the current context (conversation, files), and users can easily step back or re-run parts of the process if things go awry or requirements change. Simple tests can even be embedded directly in the conversation flow to continuously check for regressions.</p>
 <p>The development style solveit enables—stating a small goal, getting a suggestion, immediately testing it, then accepting or refining—directly mirrors the iterative process Shankar observed as essential in her DocETL research. Both DocETL’s findings and solveit’s approach point to the same conclusion: we need to treat LLMs less like black-box instruction takers and more like <strong>collaborative partners engaged in a dialog</strong>. Shankar’s research provides compelling empirical validation for the principles behind Dialog Engineering, extending their relevance beyond code generation to complex data analysis.</p>
