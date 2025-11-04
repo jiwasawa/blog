@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://jiwasawa.github.io/blog/index.html</loc>
-    <lastmod>2025-04-25T08:40:07.061Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jiwasawa.github.io/blog/posts/transformer-attention/index.html</loc>
-    <lastmod>2025-04-25T08:40:07.061Z</lastmod>
+    <loc>https://jiwasawa.github.io/blog/about.html</loc>
+    <lastmod>2025-11-04T09:06:18.903Z</lastmod>
   </url>
   <url>
     <loc>https://jiwasawa.github.io/blog/posts/difusion-basics/index.html</loc>
-    <lastmod>2025-04-25T08:40:07.061Z</lastmod>
+    <lastmod>2025-11-04T09:06:18.904Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jiwasawa.github.io/blog/posts/llm-d-anatomy/index.html</loc>
+    <lastmod>2025-11-04T09:06:18.904Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jiwasawa.github.io/blog/index.html</loc>
+    <lastmod>2025-11-04T09:06:18.903Z</lastmod>
   </url>
   <url>
     <loc>https://jiwasawa.github.io/blog/posts/docetl/index.html</loc>
-    <lastmod>2025-04-25T08:40:07.061Z</lastmod>
+    <lastmod>2025-11-04T09:06:18.904Z</lastmod>
   </url>
   <url>
-    <loc>https://jiwasawa.github.io/blog/about.html</loc>
-    <lastmod>2025-04-25T08:40:07.061Z</lastmod>
+    <loc>https://jiwasawa.github.io/blog/posts/transformer-attention/index.html</loc>
+    <lastmod>2025-11-04T09:06:18.904Z</lastmod>
   </url>
 </urlset>
