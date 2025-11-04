@@ -1,0 +1,154 @@
+---
+title: "Accelerating LLM Inference on Kubernetes: A Deep Dive into `llm-d`'s Architecture"
+author: "Junichiro Iwasawa"
+date: "2025-11-04"
+categories: [LLM, LLM Inference]
+image: https://picsum.photos/id/114/200
+---
+
+The explosive growth of Large Language Models (LLMs) has been incredible, but serving these massive models in a production environment is a formidable challenge. The core difficulty lies in a constant battle: balancing the demand for **low latency** with the need for **high throughput**.
+
+[llm-d](https://github.com/llm-d/llm-d) has emerged as a powerful solution to this problem. It's a Kubernetes-native distributed inference serving stack that provides **"Well-lit Paths"**—battle-tested recipes—for scaling large generative AI models.
+
+This article explores the architecture of `llm-d`, breaking down how it integrates powerful open-source components like Kubernetes, vLLM, and the Envoy proxy to maximize LLM inference efficiency.
+
+
+## The Core Architecture of `llm-d`
+
+At its heart, the `llm-d` architecture is composed of three distinct component layers working in concert:
+
+1.  **Inference Scheduler (The Smart Traffic Cop)**
+
+      * Built on the Kubernetes Inference Gateway (IGW) and Envoy proxy, this layer acts as an intelligent traffic director.
+      * Instead of simple round-robin load balancing, it makes "smart" routing decisions based on the real-time state of the vLLM servers, including load and KV cache contents.
+
+2.  **vLLM Model Servers (The Inference Engine)**
+
+      * These are the workhorses that actually run the LLM models and generate text.
+      * They can be configured as single-host or multi-host deployments and are the execution endpoint for `llm-d`'s advanced optimizations.
+
+3.  **Kubernetes (The Orchestrator)**
+
+      * Kubernetes serves as the foundation, managing the infrastructure and control plane.
+      * It handles the deployment, scaling, and resource management for all of `llm-d`'s components.
+
+The key insight of `llm-d` is its intelligent routing layer. It's a scheduler that understands LLM-specific concerns—like "which server has this prompt's prefix already cached?"—and integrates this logic seamlessly with the robust orchestration of Kubernetes.
+
+
+## The three "Well-lit Paths" to Optimization
+
+`llm-d` provides three primary optimization patterns (or "paths") tailored to different use cases.
+
+### 1. Intelligent Inference Scheduling
+
+This is the most fundamental and broadly applicable optimization path.
+
+  * **The Problem:** Traditional load balancers are blind. They don't know which vLLM server is busy or, more importantly, which server already has the **KV cache** for a given prompt. This leads to cache misses and inefficient resource use.
+
+  * **The Solution:** The `llm-d` Inference Gateway "scores" each vLLM instance before routing a request.
+
+      * **Load-Awareness:** It uses a `queue-scorer` to check the depth of the request queue and avoid overloading busy servers.
+      * **KV-Cache-Awareness:** It uses a `precise-prefix-cache-scorer` to identify the server most likely to have the request's prefix already in its cache, dramatically increasing cache hit rates.
+
+This scoring is highly customizable through weighted plugins in the configuration:
+
+```yaml
+# From gaie-kv-events/values.yaml
+schedulingProfiles:
+  - name: default
+    plugins:
+      # Prioritize prefix cache hits
+      - pluginRef: precise-prefix-cache-scorer
+        weight: 3.0
+      # Factor in overall KV cache memory usage
+      - pluginRef: kv-cache-utilization-scorer
+        weight: 2.0
+      # Factor in the request queue length
+      - pluginRef: queue-scorer
+        weight: 2.0
+      - pluginRef: max-score-picker
+```
+
+To make this work, vLLM instances publish their cache status to the scheduler via ZMQ (a messaging protocol), ensuring the scheduler always has a real-time view for making optimal routing decisions.
+
+### 2. Prefill/Decode (P/D) Disaggregation
+
+This technique is especially powerful for large models (like Llama-70B+) and use cases involving long prompts.
+
+  * **The Problem:** LLM inference is a two-phase process:
+
+    1.  **Prefill:** Processing the entire input prompt (compute-intensive).
+    2.  **Decode:** Generating output tokens one by one (memory-intensive).
+        These two phases have vastly different resource profiles. Running them on the same GPU is inefficient and leads to unstable latency.
+
+  * **The Solution:** `llm-d` splits these roles into separate Kubernetes **Deployments**.
+
+      * **Prefill Workers:** A group of pods, each with fewer GPUs (e.g., 4 pods, 1 GPU each), to handle many incoming prompts in parallel.
+      * **Decode Workers:** A single pod (or few pods) with many GPUs using Tensor Parallelism (e.g., 1 pod, 4 GPUs) to accommodate the large model.
+
+When a request arrives, a Prefill worker computes the KV cache and transfers it over a high-speed interconnect (like RDMA or InfiniBand, via NIXL) to a Decode worker, which then takes over token generation.
+
+```yaml
+# A simplified example from ms-pd/values.yaml
+
+# Decode Worker Configuration
+decode:
+  parallelism:
+    tensor: 4  # 4-way Tensor Parallelism
+  replicas: 1    # Only 1 replica
+  resources:
+    nvidia.com/gpu: "4" # Requests 4 GPUs
+    rdma/ib: 1
+
+# Prefill Worker Configuration
+prefill:
+  # No parallelism (TP=1)
+  replicas: 4    # 4 replicas to run in parallel
+  resources:
+    nvidia.com/gpu: "1" # Requests 1 GPU
+    rdma/ib: 1
+```
+
+**Caveat:** This approach adds overhead from the KV cache transfer. It's counterproductive for short prompts. `llm-d` accounts for this with "Selective PD," using a `threshold` parameter to bypass P/D for prompts below a certain token count.
+
+### 3. Wide Expert-Parallelism (for MoE Models)
+
+This is the most advanced path, designed for Mixture-of-Experts (MoE) models like DeepSeek-R1.
+
+  * **The Problem:** MoE models are enormous, but only a fraction of their "experts" are activated for any given token.
+  * **The Solution:** This path extends the P/D concept by using Data Parallelism (DP) to spread the model's experts across a large cluster of GPUs (e.g., 24+), using high-speed networking for communication between the experts.
+
+
+## Leveraging Kubernetes Patterns
+
+`llm-d` is "Kubernetes-native" because it masterfully uses Kubernetes' standard resources to build its complex architecture.
+
+  * **Deployment:** Used for all long-running services (vLLM, Envoy Gateway, EPP scheduler) to ensure they are self-healing and restart automatically.
+  * **Service:** Provides stable network access to pods.
+      * **LoadBalancer Service:** Assigned to the Envoy Gateway, creating a single, external IP address for clients to send inference requests.
+      * **ClusterIP Service:** Used for all internal components (vLLM pods, EPP), ensuring they can only be reached from within the cluster.
+  * **HTTPRoute:** A resource from the Kubernetes Gateway API that acts as the "glue," connecting the external-facing Gateway to the internal InferencePool (which holds the scheduling logic).
+
+
+## Monitoring and Troubleshooting
+
+`llm-d` is built for production, which means deep observability via Prometheus and Grafana is standard.
+
+**Key Metrics to Watch:**
+
+  * `vllm:time_to_first_token_seconds_bucket`: Your key latency metric (TTFT).
+  * `vllm:prefix_cache_hits_total` / `vllm:prefix_cache_queries_total`: The KV cache hit rate. A low rate means high re-computation.
+  * `vllm:num_requests_waiting`: The depth of the vLLM request queue.
+  * `vllm:kv_cache_usage_perc`: The GPU memory pressure from the KV cache.
+
+**Common Troubleshooting Scenario: High Latency**
+
+1.  **Check `vllm:num_requests_waiting`:** If this metric is high and climbing, your vLLM replicas are overwhelmed. You need to scale up your deployment.
+2.  **Check `vllm:kv_cache_usage_perc`:** If this is hovering near 100%, your cache is "thrashing"—constantly evicting old entries to make room for new ones. This forces re-computation and kills performance. You may need to optimize your scheduler weights or increase GPU memory.
+
+
+## Conclusion
+
+`llm-d` is not a single tool, but a comprehensive stack of "Well-lit Paths" for high-performance LLM inference on Kubernetes.
+
+It packages advanced optimization techniques—like intelligent, cache-aware scheduling and P/D disaggregation—into a robust framework that leverages Kubernetes-native APIs, Helm for deployment, and Prometheus for observability. For any team serious about serving large-scale AI in production, `llm-d` represents a powerful and well-architected solution.

@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/llm-d-anatomy/index.html",
       "/posts/docetl/index.html",
       "/posts/difusion-basics/index.html",
       "/posts/transformer-attention/index.html"
