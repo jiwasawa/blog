@@ -7,9 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Junichiro Iwasawa">
-<meta name="dcterms.date" content="2025-04-25">
+<meta name="dcterms.date" content="2025-11-27">
+<meta name="description" content="Microsoft CEO Satya Nadella views AI not as magic but as a “heavy industry,” emphasizing the strategic importance of “scaffolding”—the infrastructure and tools—over models themselves, as detailed in a tour of Microsoft’s Fairwater 2 data center and a discussion on the future of AI business models and geopolitical considerations.">
 
-<title>The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis</title>
+<title>Satya Nadella Discusses AI as “Heavy Industry” and the Return of Scaffolding</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -122,9 +123,15 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">The Interactive Turn: How DocETL and Dialog Engineering are Reshaping LLM Data Analysis</h1>
-                                <div class="quarto-categories">
+      <h1 class="title">Satya Nadella Discusses AI as “Heavy Industry” and the Return of Scaffolding</h1>
+                  <div>
+        <div class="description">
+          Microsoft CEO Satya Nadella views AI not as magic but as a “heavy industry,” emphasizing the strategic importance of “scaffolding”—the infrastructure and tools—over models themselves, as detailed in a tour of Microsoft’s Fairwater 2 data center and a discussion on the future of AI business models and geopolitical considerations.
+        </div>
+      </div>
+                          <div class="quarto-categories">
                 <div class="quarto-category">LLM</div>
+                <div class="quarto-category">AI</div>
                 <div class="quarto-category">Podcast</div>
               </div>
                   </div>
@@ -143,7 +150,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">April 25, 2025</p>
+        <p class="date">November 27, 2025</p>
       </div>
     </div>
     
@@ -162,56 +169,48 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>Large Language Models (LLMs) hold immense promise for extracting insights from the vast oceans of unstructured data we navigate daily. Yet, anyone who has tried to apply them to complex, real-world tasks knows the reality is often messy. Optimizing LLM pipelines for accuracy and efficiency, especially at scale, can quickly become a frustrating exercise in manual tuning.</p>
-<p>Enter <strong>DocETL</strong>, a framework developed by UC Berkeley researcher Shreya Shankar and colleagues (<a href="https://arxiv.org/abs/2410.12189">paper available here</a>), which has been garnering attention. DocETL aims to tame this complexity. Insights from Shankar’s recent <a href="https://twimlai.com/podcast/twimlai/ai-agents-for-data-analysis/">interview on the TWIML Podcast</a> shed light not only on DocETL’s innovative approach but also on a more fundamental truth about how we need to work with LLMs productively.</p>
-<section id="the-harsh-reality-of-llm-data-processing-beyond-slick-demos" class="level3">
-<h3 class="anchored" data-anchor-id="the-harsh-reality-of-llm-data-processing-beyond-slick-demos">The Harsh Reality of LLM Data Processing: Beyond Slick Demos</h3>
-<p>As detailed in the interview and the <a href="https://data-people-group.github.io/blogs/2024/09/24/docetl/">DocETL announcement blog post</a>, simply throwing a complex task at an LLM often yields disappointing results. Consider analyzing decades of presidential debate transcripts for evolving themes. The sheer <strong>scale</strong> can overwhelm context windows. The <strong>complexity</strong> involves more than extraction – it requires identifying themes, tracking changes over time, and synthesizing viewpoints across documents. And the ever-present challenge of <strong>accuracy</strong> means dealing with hallucinations and missed information.</p>
-<p>Shankar’s work on another project analyzing police misconduct records in California highlights the high stakes. Sifting through potentially thousands of pages of unstructured text for patterns requires precision; mistakes are not an option, yet traditional manual annotation is incredibly time-consuming.</p>
-<p>Many developers attempt to solve this by manually chunking data, crafting intricate prompts, and orchestrating multiple LLM calls. But as Shankar points out, this often leads to brittle pipelines that are difficult to modify and may only yield mediocre results after days of painstaking effort.</p>
+<p>An <a href="https://www.dwarkesh.com/p/satya-nadella-2">interview</a> with Microsoft CEO Satya Nadella, conducted by Dwarkesh Patel and Dylan Patel of <a href="https://semianalysis.com/">SemiAnalysis</a>, has been released.</p>
+<p>The setting was Microsoft’s state-of-the-art data center, “<a href="https://blogs.microsoft.com/blog/2025/09/18/inside-the-worlds-most-powerful-ai-datacenter/">Fairwater 2</a>”. Surrounded by over 5 million fiber optic cables in what is considered the world’s most powerful AI training cluster, the conversation was not about a glittering roadmap of generative AI, but rather the extremely physical and industrial reality of how to deploy and recoup massive capital in <strong>“the heavy industry known as AI.”</strong></p>
+<p>The interview covers a wide range of topics, but what is particularly interesting is Nadella’s reframing of AI not as “magic” but as an “industry,” and his unwavering bullish stance that the winning opportunity lies not in the AI models themselves, but in the <strong>Scaffolding</strong> that supports them.</p>
+<p>In this post, we delve into Microsoft’s “AI Industrialization” strategy and the business model for the post-AGI era envisioned by the King of SaaS, as revealed in this dialogue.</p>
+<section id="from-software-company-to-heavy-industry" class="level2">
+<h2 class="anchored" data-anchor-id="from-software-company-to-heavy-industry">From Software Company to “Heavy Industry”</h2>
+<p>“Welcome to the software company.”</p>
+<p>Nadella said this with a touch of irony amidst the roar of the data center. Looking up at a massive block of concrete not yet filled with server racks, it was a moment acknowledging that Microsoft has transformed from a company that simply writes code into a heavy industry managing power, heat, and silicon.</p>
+<p>According to Scott Guthrie (EVP of Cloud &amp; AI), Microsoft plans to increase training capacity by 10x every 18 to 24 months. This means a scale 10 times the computational resources used to train GPT-5. This explosive increase in CAPEX (capital expenditure), as Dylan Patel points out, surpasses the speed at which railways and power grids were once laid.</p>
+<p>What is important here is that Nadella justifies this huge investment through “Knowledge Intensity.” It is not just about throwing money at lining up GPUs. By injecting “software expertise”—cooling efficiency, network topology, and workload optimization—into the hardware, they aim to suppress COGS (Cost of Goods Sold) and maximize return on investment. He calls this the “Hyperscale Business,” defining it as a highly industrialized process distinct from mere hosting providers.</p>
 </section>
-<section id="docetl-a-declarative-framework-with-llm-agent-powered-optimization" class="level3">
-<h3 class="anchored" data-anchor-id="docetl-a-declarative-framework-with-llm-agent-powered-optimization">DocETL: A Declarative Framework with LLM Agent-Powered Optimization</h3>
-<p>DocETL offers a different path: a declarative framework for building and optimizing LLM-powered data processing pipelines. Users define their desired operations – like <code>Map</code> (apply to each document), <code>Reduce</code> (aggregate results), <code>Split</code> (chunk documents), <code>Gather</code> (add context to chunks), or <code>Resolve</code> (normalize similar entities) – along with prompts describing the task for each step, using YAML or Python.</p>
-<p>The core innovation lies beyond simple execution. DocETL employs <strong>LLM agents</strong> to automatically <strong>rewrite and optimize</strong> the user’s initial pipeline for better accuracy. This involves two key steps:</p>
-<ol type="1">
-<li><strong>Pipeline Rewriting</strong>: Based on predefined rules (covering data decomposition, adding intermediate steps, and LLM-specific improvements), DocETL’s agents propose alternative pipeline structures. For instance, a complex <code>Map</code> operation might be automatically broken down into a sequence: split the document, gather relevant context for each chunk, apply a simpler map to each chunk, and then aggregate the results.</li>
-<li><strong>Quality Assessment &amp; Selection</strong>: The agents generate task-specific validation criteria (e.g., “Were all instances of misconduct extracted?”, “Can each extracted instance be traced back to the source document?”). They then use an “LLM-as-a-judge” approach to evaluate the outputs of different candidate pipelines on sample data, ultimately selecting the plan predicted to yield the highest accuracy.</li>
-</ol>
-<p>This approach frees analysts from wrestling with low-level implementation details like optimal chunk sizes or error recovery logic, allowing them to focus on their analytical goals.</p>
+<section id="scaffolding-vs-model-where-does-the-value-reside" class="level2">
+<h2 class="anchored" data-anchor-id="scaffolding-vs-model-where-does-the-value-reside">Scaffolding vs Model: Where Does the Value Reside?</h2>
+<p>The highlight of the discussion is the question: <strong>“Does the value of AI reside in the model, or does it reside in the surroundings (Scaffolding)?”</strong></p>
+<p>Dylan Patel and Dwarkesh pressed Nadella on whether, as model performance improves and AI agents become capable of operating PCs autonomously, existing UIs and tools (like Excel or VS Code) would become mere waypoints, with the majority of value flowing to companies with the “smartest models” (such as OpenAI or Anthropic). In response, Nadella consistently maintained the “superiority of Scaffolding.”</p>
+<p>Nadella’s logic is as follows: Models themselves will commoditize. With the rise of Open Source models and a situation where multiple frontier models (GPT, Claude, Gemini) coexist, it is unlikely to become a “Winner-take-all” scenario where a single model dominates everything. Rather, the “Scaffolding” that integrates these models into business flows, links them with data, and applies governance will be the differentiating factor.</p>
+<p>For example, regarding “<a href="https://www.microsoft.com/en-us/microsoft-365/blog/2025/09/29/vibe-working-introducing-agent-mode-and-office-agent-in-microsoft-365-copilot/">Excel Agent</a>”, he explains that it is not just a wrapper, but the embedding of an “analyst” that understands Excel’s native logic and tools. The smarter the model becomes, the more it requires context and access rights to data (Security/Identity) to unlock its capabilities. In other words, the reading is that <strong>“the smarter AI becomes, the higher the dependency on Microsoft’s infrastructure (Office 365 data graph and GitHub repositories).”</strong></p>
+<p>This is an idea typical of Microsoft, which once seized hegemony by controlling the “platform known as the OS,” but it is simultaneously a risky bet. If AI truly becomes human-like and behaves freely across the barriers of OS and tools, it might leap over even the Scaffolding. However, Nadella is attempting to hedge this risk by controlling the “meta-layer” that manages and monitors all AI agents through initiatives like the “Agent HQ” concept.</p>
 </section>
-<section id="the-inescapable-need-for-interaction" class="level3">
-<h3 class="anchored" data-anchor-id="the-inescapable-need-for-interaction">The Inescapable Need for “Interaction”</h3>
-<p>Perhaps the most compelling insight from Shankar’s interview transcends DocETL’s technical architecture. She repeatedly emphasizes the crucial role of <strong>interaction</strong> in working effectively with LLMs. The idea of writing a perfect, one-shot prompt is often a myth.</p>
-<blockquote class="blockquote">
-<p><em>“Users have no idea how to write the prompt until they see the initial output,”</em> Shankar explains. <em>“They have to see what the LLM came up with the first time… and then say ‘Oh, like actually…’ They changed the task; they redefine [e.g.] misconduct.”</em></p>
-</blockquote>
-<blockquote class="blockquote">
-<p><em>“The more users iterate [based on seeing intermediate outputs], the more complex the prompts get… That’s very fascinating to me because I think there’s a lot of work in automated prompt engineering… that really puts the human out [of the loop].”</em></p>
-</blockquote>
-<p>It’s through seeing the LLM’s output – its successes, failures, and ambiguities – that users truly understand the nuances of their task and refine their instructions. This <strong>human-driven iterative refinement process</strong>, Shankar suggests, is fundamental to successfully leveraging LLMs for complex problems.</p>
+<section id="copilot-vs-the-world-the-fortress-of-github" class="level2">
+<h2 class="anchored" data-anchor-id="copilot-vs-the-world-the-fortress-of-github">Copilot vs The World: The Fortress of GitHub</h2>
+<p>Nadella remains calm regarding the intensifying competition in the coding domain. Facing the current situation where emerging forces like <a href="https://cursor.com/">Cursor</a> and Claude Code are threatening <a href="https://github.com/features/copilot">GitHub Copilot</a>’s share, he declared, “I love that chart” (referring to a diagram showing the rise of competitors). He argues that having completely new, AI-native companies as competitors, rather than past rivals like Borland, is proof that the market is expanding healthily.</p>
+<p>Microsoft’s strength here lies, after all, in the overwhelming data accumulation device that is <strong>GitHub</strong>. No matter what AI agent writes the code, the final code is saved and managed in a GitHub repository. Nadella is attempting to evolve GitHub from a mere code storage space into a “platform” where diverse AI agents operate in coordination.</p>
+<p>Whether a user uses Claude or OpenAI, as long as Pull Requests are flying around on GitHub in the end, Microsoft can remain at the center of that ecosystem. This can be said to be a strategy beyond “selling pickaxes in a gold rush”—it is a strategy of “renting out the safe where the results of using the pickaxes are stored.”</p>
 </section>
-<section id="echoes-of-jeremy-howards-dialog-engineering" class="level3">
-<h3 class="anchored" data-anchor-id="echoes-of-jeremy-howards-dialog-engineering">Echoes of Jeremy Howard’s “Dialog Engineering”</h3>
-<p>Shankar’s findings resonate strongly with the concept of “<strong>Dialog Engineering</strong>,” championed by Jeremy Howard, co-founder of fast.ai and now leading Answer.AI. Jeremy argues that the common approach of throwing large, monolithic prompts at an AI and hoping for hundreds of lines of perfect code is <a href="https://www.answer.ai/posts/2024-11-07-solveit.html">fundamentally flawed for real-world development</a>.</p>
-<p>Dialog Engineering proposes the opposite: a <strong>tight interactive loop</strong> between human and LLM, where code or other artifacts are <strong>co-constructed in small, manageable increments</strong>. Validation happens at each step.</p>
-<p>Answer.AI’s tool, <strong>solveit</strong> (currently in private beta), aims to embody this philosophy. It provides an interface blending chat and a REPL (Read-Eval-Print Loop), allowing users to give instructions in natural language, receive small code suggestions, and <strong>immediately execute and verify</strong> them within the same environment. The LLM always sees the current context (conversation, files), and users can easily step back or re-run parts of the process if things go awry or requirements change. Simple tests can even be embedded directly in the conversation flow to continuously check for regressions.</p>
-<p>The development style solveit enables—stating a small goal, getting a suggestion, immediately testing it, then accepting or refining—directly mirrors the iterative process Shankar observed as essential in her DocETL research. Both DocETL’s findings and solveit’s approach point to the same conclusion: we need to treat LLMs less like black-box instruction takers and more like <strong>collaborative partners engaged in a dialog</strong>. Shankar’s research provides compelling empirical validation for the principles behind Dialog Engineering, extending their relevance beyond code generation to complex data analysis.</p>
+<section id="geopolitics-and-sovereign-ai-satya-as-a-diplomat" class="level2">
+<h2 class="anchored" data-anchor-id="geopolitics-and-sovereign-ai-satya-as-a-diplomat">Geopolitics and Sovereign AI: Satya as a Diplomat</h2>
+<p>In the latter half of the interview, the topic shifted to geopolitical risks. How will Microsoft maneuver in a bipolar world defined by US-China friction?</p>
+<p>Here, Nadella emphasized the concept of <strong>“<a href="https://www.microsoft.com/en-us/industry/sovereignty/cloud">Sovereign AI</a>”</strong>. The desire for governments and companies in each country to manage AI under their own data, their own computational resources, and their own regulations will only grow stronger. In response, Microsoft’s strategy is not to simply impose American technology, but to win Trust by providing “local AI infrastructure” tailored to the circumstances of each country.</p>
+<p>Just as having TSMC factories located in Taiwan is a risk, the concentration of AI computational resources in specific regions becomes a national security risk. Nadella aims to productize this “trust” through a distributed data center network and the assurance of data residency (physical storage location of data). This is a technical challenge, but at the same time, an extremely sophisticated diplomatic move.</p>
 </section>
-<section id="the-road-ahead-challenges-and-opportunities" class="level3">
-<h3 class="anchored" data-anchor-id="the-road-ahead-challenges-and-opportunities">The Road Ahead: Challenges and Opportunities</h3>
-<p>DocETL is still evolving, and Shankar acknowledges several areas for future work:</p>
-<ul>
-<li><strong>Interfaces</strong>: Moving beyond YAML to more intuitive UIs that facilitate visualization and iteration on large documents and LLM outputs.</li>
-<li><strong>Agent Reliability</strong>: Improving the consistency and fault tolerance of the LLM agents performing the optimization.</li>
-<li><strong>Optimization Speed &amp; Transparency</strong>: Making the optimization process faster and more debuggable for users.</li>
-<li><strong>Benchmarking</strong>: Developing new benchmarks specifically designed to evaluate LLM performance on the complex, long-context data processing tasks DocETL targets.</li>
-</ul>
+<section id="mai-and-openai-not-two-timing-but-a-portfolio" class="level2">
+<h2 class="anchored" data-anchor-id="mai-and-openai-not-two-timing-but-a-portfolio">MAI and OpenAI: Not Two-Timing, but a “Portfolio”</h2>
+<p>Finally, we must touch upon the relationship between Microsoft’s internal AI development unit, “<a href="https://microsoft.ai/">Microsoft AI (MAI)</a>”, and OpenAI. Although there is speculation that “Microsoft might be giving up on OpenAI and shifting to in-house development,” Nadella’s answer is strictly a “portfolio strategy.”</p>
+<p>He emphasized a division of labor: maximizing the use of OpenAI’s models as the “frontier,” while developing models optimized for cost efficiency, latency, and specific product requirements in-house (MAI). This is a natural conclusion, as processing every workload with the top-tier GPT-4 lacks economic rationality.</p>
+<p>However, reading between the lines, an intention to <strong>“reduce dependence on OpenAI and secure autonomy”</strong> is also visible. The fact that they have secured rights to use OpenAI’s models for the next 7 years while simultaneously gathering top talent like Mustafa Suleyman (DeepMind co-founder) internally to form a proprietary “Superintelligence Team” is significant. Microsoft is steadily preparing a structure where it can enjoy the fruits if OpenAI succeeds, and cover with its own technology should OpenAI stumble.</p>
 </section>
-<section id="conclusion-dialog-is-key-in-the-llm-era" class="level3">
-<h3 class="anchored" data-anchor-id="conclusion-dialog-is-key-in-the-llm-era">Conclusion: Dialog is Key in the LLM Era</h3>
-<p>DocETL represents a significant step forward in harnessing LLMs for complex unstructured data analysis. Its declarative framework and agent-based optimization offer a powerful alternative to manual pipeline construction. However, the research journey itself highlights a critical lesson: the technology alone isn’t enough.</p>
-<p>The true potential of LLMs in these domains will be unlocked not just by better models or automation, but by better <strong>interfaces and workflows that embrace human-LLM interaction</strong>. We need tools that facilitate the back-and-forth, the iterative refinement, the <em>dialog</em> that allows us to clarify our intent and leverage the LLM’s capabilities effectively. The direction indicated by DocETL’s research and tools like Jeremy Howard’s solveit suggests that this interactive paradigm is central to the future of AI-assisted analysis and development.</p>
+<section id="conclusion-towards-the-general-trading-company-of-the-ai-era" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-towards-the-general-trading-company-of-the-ai-era">Conclusion: Towards the “General Trading Company” of the AI Era</h2>
+<p>What emerges from the dialogue with Dwarkesh Patel is the figure of a Microsoft that, without getting carried away by the generative AI boom, is cool-headedly solidifying its “industrial foundation.”</p>
+<p>While participating in the AI model development race (the gold rush), they are simultaneously moving to seize the infrastructure (railroads), tools (pickaxes), and storage locations (banks) for it. The future Nadella speaks of is not so much the arrival of a sci-fi singularity, but rather a vision—in a sense more ambitious and formidable—where AI spreads to every corner of the world like electricity or gas, and Microsoft manages all of those faucets.</p>
+<p>Will Scaffolding dominate the Model, or will the Model render Scaffolding ineffective? It will take time for the answer to this question to emerge, but at the very least, Microsoft continues to pour enormous capital into every layer, from physical world data centers to the application layer, so that it can succeed whichever way things fall. This is truly a heavyweight performance.</p>
 
 
 </section>
